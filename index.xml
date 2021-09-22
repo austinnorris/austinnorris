@@ -6,7 +6,12 @@
     <description>Recent content in acn.dev on austin norris</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-US</language>
-    <lastBuildDate>Tue, 21 Sep 2021 16:05:02 -0600</lastBuildDate><atom:link href="https://acn.dev/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 21 Sep 2021 16:05:02 -0600</lastBuildDate>
+    
+	<atom:link href="https://acn.dev/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    
     <item>
       <title>Hello</title>
       <link>https://acn.dev/hello/</link>
@@ -16,14 +21,8 @@
       <description>This will be a space for me to document various things I&amp;rsquo;m working on or learning and perhaps the occasional navel-gazing insight. You can find more about me here.</description>
     </item>
     
-    <item>
-      <title>About</title>
-      <link>https://acn.dev/about/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://acn.dev/about/</guid>
-      <description>Hi! I&amp;rsquo;m a software developer and systems administrator currently working at the UCLA Department of Earth, Planetary, and Space Sciences. I help with various satellite research missions studying space weather phenomena. I got my start working on the Electron Losses and Fields Investigation (ELFIN) mission as an undergraduate student, and now have the opportunity to mentor current student members of the project. I&amp;rsquo;ve started this blog to document some things I&amp;rsquo;ve learned or worked on, random musings on software engineering and IT, or whatever else might be interesting.</description>
-    </item>
+    
+    
     
   </channel>
 </rss>
