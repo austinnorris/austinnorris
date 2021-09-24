@@ -6,9 +6,21 @@
     <description>Recent content in acn.dev on austin norris</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-US</language>
-    <lastBuildDate>Tue, 21 Sep 2021 16:05:02 -0600</lastBuildDate>
+    <lastBuildDate>Thu, 23 Sep 2021 22:21:57 -0700</lastBuildDate>
     
 	<atom:link href="https://acn.dev/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    
+    <item>
+      <title>How this site works</title>
+      <link>https://acn.dev/how-this-site-works/</link>
+      <pubDate>Thu, 23 Sep 2021 22:21:57 -0700</pubDate>
+      
+      <guid>https://acn.dev/how-this-site-works/</guid>
+      <description>This post describes how I set up this site and some of the pitfalls along the way.  to err is human, or: make sure your CI/CD stages respect git submodules
+  The Short Version This site is created using the Hugo static site generator, with the minimalist Etch theme by Lukas Joswiak. The website itself is hosted on GitHub Pages and I manage the domain through Google Domains. A private GitHub repository contains the markdown, config, and static resources, while a GitHub Actions workflow automatically builds and deploys the site to a public repo whenever I push to main.</description>
+    </item>
     
     
     

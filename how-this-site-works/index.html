@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="I&#39;m Austin Norris. I work mostly on Python development and sysadmin.">
+    
+    <link rel="shortcut icon" href="https://acn.dev/favicon.ico">
+    
+    <link rel="stylesheet" href="/css/style.min.css">
+
+    <title>How this site works</title>
+</head>
+<body><header id="banner">
+    <h2><a href="https://acn.dev">austin norris</a></h2>
+    <nav>
+        <ul>
+            <li>
+                <a href="/" title="posts">posts</a>
+            </li><li>
+                <a href="/about/" title="about">about</a>
+            </li><li>
+                <a href="https://github.com/austinnorris" title="github">github</a>
+            </li><li>
+                <a href="https://www.linkedin.com/in/acn" title="linkedin">linkedin</a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main id="content">
+<article>
+    <header id="post-header">
+        <h1>How this site works</h1>
+            <div>
+                <time>September 23, 2021</time>
+                </div>
+    </header><p>This post describes how I set up this site and some of the pitfalls along the way.
+<figure><a href="/img/initial-site-gh-workflow-attempts.png" rel="image_src">
+    <img src="/img/initial-site-gh-workflow-attempts.png"
+         alt="attempted workflow runs while getting the site working" width="90%"/> </a><figcaption>
+            <p>to err is human, or: make sure your CI/CD stages respect git submodules</p>
+        </figcaption>
+</figure>
+</p>
+<h2 id="the-short-version">The Short Version</h2>
+<p>This site is created using the <a href="https://gohugo.io/">Hugo</a> static site generator, with the minimalist <a href="https://github.com/LukasJoswiak/etch">Etch theme</a> by Lukas Joswiak. The website itself is hosted on <a href="https://pages.github.com/">GitHub Pages</a> and I manage the domain through <a href="https://domains.google/">Google Domains</a>. A private GitHub repository contains the markdown, config, and static resources, while a GitHub Actions workflow automatically builds and deploys the site to a <a href="https://github.com/austinnorris/austinnorris.github.io">public repo</a> whenever I push to <code>main</code>.</p>
+<h2 id="the-long-version">The Long Version</h2>
+<p>I knew I wanted to use a static site generator and not be bogged down by some complicated CMS. In all honesty, I chose Hugo because it seemed easy to use, is markdown-based, and I only needed the bare minimum to support a blog. (Okay, maybe also because I&rsquo;ve seen some cool blogs rocking the <a href="https://themes.gohugo.io/themes/hugo-theme-terminal/">Terminal theme</a>.) In the future I&rsquo;ll likely explore more themes to support things like tags and post categories.</p>
+<p>With the choice of site generator out of the way, I needed somewhere to host it. I do enough server administration at my day job, and while I could have gone to the trouble of putting this on a VPS, I also was curious about more modern options like Netlify or Heroku. In the end, to keep things simple I opted to take the path of least resistance and let GitHub Pages do it for me. This keeps everything under one service and the <a href="https://docs.github.com/en/pages/getting-started-with-github-pages/about-github-pages#usage-limits">usage limits are quite reasonable</a>.</p>
+<p>I had already gotten far enough locally with the initial site configuration, including adding the theme and using <a href="https://gohugo.io/content-management/shortcodes/#use-hugos-built-in-shortcodes">shortcodes for things like embedding images</a>, so it was time to find a good process for deploying the site. I first looked at <a href="https://tonyh.dev/posts/the-creation-of-this-blog-with-hugo-github-pages-forestry-and-google-domains/">this post</a> which also uses a .dev domain, but decided against giving Forestry.io access to my GitHub account (nothing against them, it just seemed like there might be a better way). I soon found <a href="https://saltares.com/easily-deploy-your-hugo-site-to-github-pages/">this fantastic guide</a> and had my GitHub Actions workflow running in no time.</p>
+<p>Just one hiccup: while everything seemed to be working fine from the workflow perspective (err, after I errantly changed the version of <a href="https://github.com/peaceiris/actions-gh-pages"><code>actions-gh-pages</code></a> but not the <code>with</code>/<code>env</code> section), when I looked at the public site repo, there was no <code>index.html</code> or indeed <em>any</em> HTML file output, <a href="https://github.com/austinnorris/austinnorris.github.io/commit/7063980b70c82241be814f1541299d36d3d5983e">only XML</a> (along with favicons<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup> and images). Thus the troubleshooting process began.</p>
+<p>Inspecting the output of the &ldquo;Build and deploy&rdquo; workflow in GitHub Actions, it didn&rsquo;t take long to see that something was breaking during the Build stage, with Hugo emitting a series of warnings about layout files:</p>
+<pre><code>Run hugo
+Start building sites … 
+WARN 2021/09/22 03:46:41 found no layout file for &quot;HTML&quot; for kind &quot;page&quot;: You should create a template file which matches Hugo Layouts Lookup Rules for this combination.
+WARN 2021/09/22 03:46:41 found no layout file for &quot;HTML&quot; for kind &quot;page&quot;: You should create a template file which matches Hugo Layouts Lookup Rules for this combination.
+WARN 2021/09/22 03:46:41 found no layout file for &quot;HTML&quot; for kind &quot;home&quot;: You should create a template file which matches Hugo Layouts Lookup Rules for this combination.
+WARN 2021/09/22 03:46:41 found no layout file for &quot;HTML&quot; for kind &quot;section&quot;: You should create a template file which matches Hugo Layouts Lookup Rules for this combination.
+WARN 2021/09/22 03:46:41 found no layout file for &quot;HTML&quot; for kind &quot;taxonomy&quot;: You should create a template file which matches Hugo Layouts Lookup Rules for this combination.
+WARN 2021/09/22 03:46:41 found no layout file for &quot;HTML&quot; for kind &quot;taxonomy&quot;: You should create a template file which matches Hugo Layouts Lookup Rules for this combination.
+</code></pre><p>I stumbled around a few posts mentioning the error, which all seemed to suggest consulting the <a href="https://gohugo.io/templates/lookup-order/#hugo-layouts-lookup-rules">layout lookup rules</a>. In particular, one suggested creating the missing templates but leaving them empty aside from a comment. So I did. And it made HTML files! Alas, they were empty, because the templates I had just created were empty. The fact that it worked when running the local Hugo server on my machine was a big hint that I was missing something in my build/deploy workflow. Then I realized that the theme I was using should include the layouts (<a href="https://github.com/LukasJoswiak/etch/tree/master/layouts">which, of course, it does</a>).</p>
+<p>Clearly something was wrong with how I was using the theme, which, as is typically recommended for Hugo, leveraged git submodules. After learning <a href="https://stackoverflow.com/questions/1260748/how-do-i-remove-a-submodule">how to remove a submodule</a> and re-adding it, the problem persisted. Finally, after inspecting the checkout step of the workflow, I realized that the <em>theme was not being included at all</em>, because the checkout command did not include a flag to also include submodules. A one-line change to the my <code>.github/workflows/deploy.yml</code> workflow definition later, and it finally worked! Since I made a number of changes from the originally recommened <code>deploy.yml</code> file, I&rsquo;ve reproduced my final version below:</p>
+<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">Build and deploy</span><span class="w">
+</span><span class="w">
+</span><span class="w"></span><span class="nt">on</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">push</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="nt">branches</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span>- <span class="l">main</span><span class="w">
+</span><span class="w">
+</span><span class="w"></span><span class="nt">jobs</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">build</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l">ubuntu-latest</span><span class="w">
+</span><span class="w">    </span><span class="nt">steps</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">Checkout</span><span class="w">
+</span><span class="w">      </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">actions/checkout@v1</span><span class="w">
+</span><span class="w">      </span><span class="nt">with</span><span class="p">:</span><span class="w">
+</span><span class="w">        </span><span class="nt">submodules</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;recursive&#39;</span><span class="w">
+</span><span class="w">    </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">Setup Hugo</span><span class="w">
+</span><span class="w">      </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">peaceiris/actions-hugo@v2</span><span class="w">
+</span><span class="w">      </span><span class="nt">with</span><span class="p">:</span><span class="w">
+</span><span class="w">        </span><span class="nt">hugo-version</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;0.79.1&#39;</span><span class="w">
+</span><span class="w">    </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">Build</span><span class="w">
+</span><span class="w">      </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l">hugo</span><span class="w">
+</span><span class="w">    </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">Deploy</span><span class="w">
+</span><span class="w">      </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">peaceiris/actions-gh-pages@v3</span><span class="w">
+</span><span class="w">      </span><span class="nt">with</span><span class="p">:</span><span class="w">
+</span><span class="w">        </span><span class="nt">deploy_key</span><span class="p">:</span><span class="w"> </span><span class="l">${{ secrets.ACTIONS_DEPLOY_KEY }}</span><span class="w">
+</span><span class="w">        </span><span class="nt">external_repository</span><span class="p">:</span><span class="w"> </span><span class="l">austinnorris/austinnorris.github.io</span><span class="w">
+</span><span class="w">        </span><span class="nt">publish_branch</span><span class="p">:</span><span class="w"> </span><span class="l">main</span><span class="w">
+</span><span class="w">        </span><span class="nt">publish_dir</span><span class="p">:</span><span class="w"> </span><span class="l">./public</span><span class="w">
+</span><span class="w">        </span><span class="nt">cname</span><span class="p">:</span><span class="w"> </span><span class="l">acn.dev</span></code></pre></div>
+<p>Conveniently, the final deploy step also includes a <code>cname</code> parameter that automatically creates the CNAME file required to use an <a href="https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site#configuring-an-apex-domain">apex domain</a> for the site on Pages.</p>
+<p>For about an hour of effort, not a bad result! This was my first time using GitHub Actions (being more familiar with GitLab CI/CD from work) or deploying a SSG-based website in such a manner, but I learned a lot along the way.</p>
+<section class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1" role="doc-endnote">
+<p>I used <a href="https://favicon.io/favicon-generator/">this helpful tool</a> to generate a simple favicon for multiple platforms. <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</section>
+</article>
+
+        </main><footer id="footer">
+    Copyright © 2021 Austin Norris
+</footer>
+</body>
+</html>
