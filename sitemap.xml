@@ -13,22 +13,7 @@
   </url>
   
   <url>
-    <loc>https://acn.dev/tags/meta/</loc>
-    <lastmod>2021-09-23T22:21:57-07:00</lastmod>
-  </url>
-  
-  <url>
     <loc>https://acn.dev/posts/</loc>
-    <lastmod>2021-09-23T22:21:57-07:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://acn.dev/tags/</loc>
-    <lastmod>2021-09-23T22:21:57-07:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://acn.dev/tags/web/</loc>
     <lastmod>2021-09-23T22:21:57-07:00</lastmod>
   </url>
   
@@ -43,6 +28,10 @@
   
   <url>
     <loc>https://acn.dev/categories/</loc>
+  </url>
+  
+  <url>
+    <loc>https://acn.dev/tags/</loc>
   </url>
   
 </urlset>
