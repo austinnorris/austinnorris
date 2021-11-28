@@ -6,9 +6,21 @@
     <description>Recent content in Posts on austin norris</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-US</language>
-    <lastBuildDate>Thu, 23 Sep 2021 22:21:57 -0700</lastBuildDate>
+    <lastBuildDate>Wed, 17 Nov 2021 23:07:55 -0800</lastBuildDate>
     
 	<atom:link href="https://acn.dev/posts/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    
+    <item>
+      <title>A quick problem solved with Python</title>
+      <link>https://acn.dev/a-quick-problem-solved-with-python/</link>
+      <pubDate>Wed, 17 Nov 2021 23:07:55 -0800</pubDate>
+      
+      <guid>https://acn.dev/a-quick-problem-solved-with-python/</guid>
+      <description>A coworker was recently working on some hardware in the lab. Particularly, obtaining signal measurements for an experimental magnetometer. It turns out audio analyzers make great tools for the job, and this model (QuantAsylum QA402) helpfully exposes a REST API for controlling the unit and obtaining the raw channel measurement data. The goal in this case was to get the raw signal data into Python for analysis.
+One small obstacle: the included software (and bundled webserver) were running on a Windows workstation at the lab bench, and we wanted to be able to run tests and obtain signals remotely.</description>
+    </item>
     
     
     

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="I&#39;m Austin Norris. I work mostly on Python development and sysadmin.">
+    
+    <link rel="shortcut icon" href="https://acn.dev/favicon.ico">
+    
+    <link rel="stylesheet" href="/css/style.min.css">
+
+    <title>A quick problem solved with Python</title>
+</head>
+<body><head>
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-8BLJJN74JL"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-8BLJJN74JL');
+    </script>
+</head>
+
+<header id="banner">
+    <h2><a href="https://acn.dev">austin norris</a></h2>
+    <nav>
+        <ul>
+            <li>
+                <a href="/" title="posts">posts</a>
+            </li><li>
+                <a href="/about/" title="about">about</a>
+            </li><li>
+                <a href="https://github.com/austinnorris" title="github">github</a>
+            </li><li>
+                <a href="https://www.linkedin.com/in/acn" title="linkedin">linkedin</a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main id="content">
+<article>
+    <header id="post-header">
+        <h1>A quick problem solved with Python</h1>
+            <div>
+                <time>November 17, 2021</time>
+                </div>
+    </header><p>A coworker was recently working on some hardware in the lab. Particularly, obtaining signal measurements for an experimental magnetometer. It turns out audio analyzers make great tools for the job, and this model (<a href="https://quantasylum.com/products/qa402-audio-analyzer">QuantAsylum QA402</a>) helpfully exposes a <a href="https://github.com/QuantAsylum/QA402/wiki/QA40x-API">REST API</a> for controlling the unit and obtaining the raw channel measurement data. The goal in this case was to get the raw signal data into Python for analysis.</p>
+<p>One small obstacle: the included software (and bundled webserver) were running on a Windows workstation at the lab bench, and we wanted to be able to run tests and obtain signals remotely. The first thing to be done was to add a Windows firewall rule permitting inbound traffic on port 9402<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>.</p>
+<p>Sadly, however, the webserver only responded to requests to localhost, and not the LAN IP of the machine. The QA402 software offers minimal configuration of the webserver handling the REST API, so we needed an alternate solution. Enter: the <a href="https://en.wikipedia.org/wiki/Reverse_proxy">reverse proxy</a>.</p>
+<p>In our scenario, we can place a small reverse proxy on the workstation hosting the signal analyzer and forward any incoming requests to the running webserver on <code>localhost:9402</code>, then send responses back out to the originating client. It turns out that this can be done in about 50 lines of code by subclassing <a href="https://docs.python.org/3/library/http.server.html#http.server.BaseHTTPRequestHandler"><code>BaseHTTPRequestHandler</code></a>.</p>
+<p>What&rsquo;s even easier is discovering the great existing tool written in Python, <a href="https://mitmproxy.org/">mitmproxy</a>. A quick new Poetry project and <code>poetry add mitmproxy</code> later, and the following command handles everything while also showing incoming requests in a pretty terminal window on the workstation:</p>
+<p><code>poetry run mitmproxy --listen-host WORKSTATION_IP --listen-port 8080 --mode reverse:http://localhost:9402</code></p>
+<p>With this, we could easily obtain the time series data as a Base64-encoded double array, readily loaded into numpy for further analysis and plotting with standard Python toolkits. Now that the remote access was solved, we could move onto building remote control and data acquisiton tooling. In the end it was a great example of the versatility of Python and existence of incredibly useful open source tools.</p>
+<section class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1" role="doc-endnote">
+<p>An acceptable tradeoff since everything is on our secure lab subnet. <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</section>
+</article>
+
+        </main><footer id="footer">
+    Copyright © 2021 Austin Norris
+</footer>
+</body>
+</html>
