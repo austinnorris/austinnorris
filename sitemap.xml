@@ -4,16 +4,31 @@
   
   <url>
     <loc>https://acn.dev/</loc>
-    <lastmod>2021-09-23T22:21:57-07:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://acn.dev/how-this-site-works/</loc>
-    <lastmod>2021-09-23T22:21:57-07:00</lastmod>
+    <lastmod>2023-05-21T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://acn.dev/posts/</loc>
+    <lastmod>2023-05-21T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://acn.dev/tags/</loc>
+    <lastmod>2023-05-21T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://acn.dev/this-week-i-learned-2023-05-21/</loc>
+    <lastmod>2023-05-21T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://acn.dev/tags/twil/</loc>
+    <lastmod>2023-05-21T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://acn.dev/how-this-site-works/</loc>
     <lastmod>2021-09-23T22:21:57-07:00</lastmod>
   </url>
   
@@ -28,10 +43,6 @@
   
   <url>
     <loc>https://acn.dev/categories/</loc>
-  </url>
-  
-  <url>
-    <loc>https://acn.dev/tags/</loc>
   </url>
   
 </urlset>

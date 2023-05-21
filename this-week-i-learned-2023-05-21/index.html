@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="I&#39;m Austin Norris-Zhou, a full-stack software engineer.">
+    
+    <link rel="shortcut icon" href="https://acn.dev/favicon.ico">
+    
+    <link rel="stylesheet" href="/css/style.min.css">
+
+    <title>This week I learned: 2023-05-21</title>
+</head>
+<body><head>
+    <script defer data-domain="acn.dev" src="https://plausible.io/js/script.js"></script>
+</head>
+
+<header id="banner">
+    <h2><a href="https://acn.dev">austin norris-zhou</a></h2>
+    <nav>
+        <ul>
+            <li>
+                <a href="/" title="posts">posts</a>
+            </li><li>
+                <a href="/about/" title="about">about</a>
+            </li><li>
+                <a href="https://github.com/austinnorris" title="github">github</a>
+            </li><li>
+                <a href="https://www.linkedin.com/in/acn" title="linkedin">linkedin</a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main id="content">
+<article>
+    <header id="post-header">
+        <h1>This week I learned: 2023-05-21</h1>
+            <div>
+                <time>May 21, 2023</time>
+                </div>
+    </header><p><em>Note: I have posted basically nothing<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup> since setting this site up nearly two years ago. It&rsquo;s probably a bit ambitious to set an explicit goal of posting every week, but I&rsquo;m going to try to create a summary or recap of things I&rsquo;ve learned on a semi-regular basis.</em></p>
+<p>Song of the week: <a href="https://www.youtube.com/watch?v=mlIMIJIcpn8">Esperanza by Hermanos Gutiérrez</a></p>
+<p>This week&rsquo;s topics:</p>
+<ul>
+<li><a href="#writing-a-container-in-rust">Writing a Container in Rust</a></li>
+<li><a href="#redux-fundamentals">Redux Fundamentals</a></li>
+</ul>
+<h2 id="writing-a-container-in-rust">Writing a Container in Rust</h2>
+<p>Containerization (a.k.a. <a href="https://en.wikipedia.org/wiki/OS-level_virtualization">OS-level virtualization</a>) is part and parcel of modern backend software development. A not-wholly-wrong, if pithy, explanation is that this is the result of a happy confluence of &ldquo;it works on my machine, so we&rsquo;ll ship the whole machine&rdquo; and &ldquo;servers as cattle, not pets&rdquo; type thinking. (Yes, mechanisms for process isolation and resource sharing are about as old as modern computing, but we&rsquo;re taking a high-level view here.)</p>
+<p>This has brought with it some nice conveniences (stable build artifacts, even for interpreted languages; &ldquo;simple&rdquo; horizontal scalability; environment-variable driven behavior/separation of configuration from code) and sometimes not-so-nice challenges (container orchestration; bloated container images<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup>; <a href="https://cheatsheetseries.owasp.org/cheatsheets/Docker_Security_Cheat_Sheet.html">security implications</a>). For many developers, Docker is synonymous with containerized applications, though technologies like LXC<sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup> and OpenVZ on Linux or FreeBSD jails predate it by years. Regardless, the industry standard is now &ldquo;<a href="https://github.com/opencontainers/image-spec">OCI images</a> on a <a href="https://containerd.io/"><code>containerd</code></a> runtime&rdquo; (managed by Kubernetes or the like).</p>
+<p>Musings on containerized development aside, containers on Linux are really &ldquo;just&rdquo; a clever combination of a whole slew of kernel-provided isolation mechanisms, security primitives, and resource restriction functions. Lizzie Dixon published the original &ldquo;<a href="https://blog.lizzie.io/linux-containers-in-500-loc.html">Linux containers in 500 lines of code</a>&rdquo; in 2016. Late last year, I found an update of that article by <a href="https://litchipi.github.io/series/container_in_rust">Litchi Pi, implementing the same basic container architecture using Rust</a>, which (like the original) ended up being a really great tutorial on the essential ingredients of containers on Linux, while providing exposure to some of the Rust crates one can use to interface with kernel mechanisms and system calls. This year I&rsquo;ve found time here and there to follow along with the article, and finally finished it this week.</p>
+<p>The <a href="https://github.com/austinnorris/crabcan">end result</a> handles the following:</p>
+<ul>
+<li>spawning the child process in its own namespace for mounts, PIDs, IPC, hostname, etc.</li>
+<li>creating Unix sockets to drive the container</li>
+<li>mounting several directories and performing a <a href="https://man7.org/linux/man-pages/man2/pivot_root.2.html"><code>pivot_root</code></a></li>
+<li>setting a random hostname like <code>small-blue-violin</code></li>
+<li>handling user namespace UID/GID mapping</li>
+<li>limiting resource usage via <code>cgroups</code> and <code>rlimit/ulimit</code></li>
+<li><a href="https://github.com/austinnorris/crabcan/commit/8d19ce2f97439d5d5567ea5dc3fef31b2b868c15?diff=unified#diff-415003eb60708adbe971382cbd1082fec2d24dbce2aca5baad41bdd6eda8314fR6-R30">restricting capabilities</a> and limiting syscalls</li>
+<li>and more</li>
+</ul>
+<figure><a href="/img/rust-container-output.webp" rel="image_src">
+    <img src="/img/rust-container-output.webp"
+         alt="output of running the crabcan container" width="90%"/> </a><figcaption>
+            <p>Verbose output container setup and configuration to run (an isolated) Bash shell.</p>
+        </figcaption>
+</figure>
+
+<p>As mentioned at the end of Litchi Pi&rsquo;s series, there are a few interesting directions to take it in from here: actual cleanup of the temporary directories, adding proper network isolation, implementing a container format spec, etc. When I have time I&rsquo;d like to attempt some of these.</p>
+<p>In the end, it&rsquo;s probably worth reading both tutorials (and the second naturally references the first): together they&rsquo;re packed with references to various manpages, historical LWN articles, discussions of security considerations, and overall a <em>ton</em> of information. In one word, the amount of material you could branch out to by reading these articles is: <em>sprawling</em><sup id="fnref:4"><a href="#fn:4" class="footnote-ref" role="doc-noteref">4</a></sup>. The story of containers on Linux is the culmination of the last 20+ years of isolation and security developments in the kernel. Oh, and I had a good chuckle at</p>
+<blockquote>
+<p>Note: this capability is overloaded</p>
+</blockquote>
+<p>on the description of <a href="https://man7.org/linux/man-pages/man7/capabilities.7.html"><code>CAP_SYS_ADMIN</code></a>. My journey with Rust and learning systems programming continues (we&rsquo;ll see how long it takes to work through <a href="https://www.rustinaction.com/">Rust in Action</a>), but this was fun deep dive into a technology I use daily.</p>
+<h2 id="redux-fundamentals">Redux Fundamentals</h2>
+<p>I expended a lot of words on the above, so I&rsquo;ll keep this shorter. Early this year I made it a goal to pick up more modern frontend web development and <del>remain relevant</del> ascend to (in modern parlance) full-stack greatness, having cut my teeth on desktop GUI development years ago with Qt and PyQt. We use a variety of state management techniques in our (React) frontend codebases at work, but this week I went through a <a href="https://frontendmasters.com/courses/redux-fundamentals/">https://www.youtube.com/watch?v=DrIQLiB3HPI Frontend Masters course on using Redux in React applications</a>.</p>
+<p>Steve Kinney is a thoroughly entertaining instructor, and the course demystifies what Redux is doing under-the-hood. Indeed we actually use <a href="https://redux-toolkit.js.org/">Redux Toolkit (RTK)</a><sup id="fnref:5"><a href="#fn:5" class="footnote-ref" role="doc-noteref">5</a></sup>, and without knowing the basics of pure Redux (and related core libraries like <a href="https://immerjs.github.io/immer/">Immer</a>) I think one would be hard-pressed to claim a deep understanding of it.</p>
+<section class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1" role="doc-endnote">
+<p>This long stretch of silence is, I gather, a rite of passage in blogging or really just even having a personal website at all. <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:2" role="doc-endnote">
+<p>I&rsquo;ve spent quality time shaving hundreds of MB off of Python service containers or optimizing using <a href="https://docs.docker.com/build/building/multi-stage/">multi-stage builds</a>. Shout out to <a href="https://github.com/wagoodman/dive">dive</a>, a nifty tool for visualizing container image layers. <a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:3" role="doc-endnote">
+<p>Actually, the earliest versions of Docker used LXC as the underlying execution environment. <a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:4" role="doc-endnote">
+<p>A rabbit hole on various <a href="https://en.wikipedia.org/wiki/Linux_Security_Modules">Linux Security Modules</a>, for one thing, though I haven&rsquo;t had to wrangle with SELinux since regularly doing administration on CentOS over a decade ago. <a href="#fnref:4" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:5" role="doc-endnote">
+<p>Hey look, <a href="https://frontendmasters.com/courses/advanced-redux/">a course on that, too</a>. <a href="#fnref:5" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</section>
+</article>
+
+        </main><footer id="footer">
+    Copyright © 2023 Austin Norris-Zhou
+</footer>
+</body>
+</html>
